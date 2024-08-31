@@ -4,3 +4,25 @@
   padding: 2rem;
   text-align: center;
 }
+
+.data {
+  text-align: left;
+  max-width: 60em;
+  margin: auto;
+  overflow-x: auto;
+  border: 1px solid grey;
+}
+
+.message {
+  .lines {
+    margin-bottom: 1em;
+  }
+
+  .line {
+    margin: 0.2em;
+  }
+
+  details {
+    margin: 1em;
+  }
+}
