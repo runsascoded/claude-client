@@ -13,6 +13,14 @@
   border: 1px solid grey;
 }
 
+.prompt {
+  padding: 0.8em;
+}
+
+.section {
+  margin-bottom: 1em;
+}
+
 .message {
   .lines {
     margin-bottom: 1em;
@@ -25,4 +33,44 @@
   details {
     margin: 1em;
   }
+}
+
+.tooltipArrow {
+}
+
+.menu {
+  text-align: center;
+  p {
+    margin: 0.1em;
+  }
+  a {
+    color: white;
+    text-decoration: underline;
+    transition: all 0.3s ease;
+    &:hover {
+      color: white;
+      text-shadow: 0 0 1px white;
+    }
+  }
+}
+
+.tooltip {
+  background-color: pink;
+}
+
+label > span {
+  margin-right: 0.5em;
+}
+
+.model {
+  max-width: 20em;
+}
+.max-tokens {
+  max-width: 6em;
+  text-align: right;
+}
+
+.temperature {
+  max-width: 4em;
+  text-align: right;
 }

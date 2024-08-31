@@ -1,5 +1,5 @@
 {
-  "name": "db-chat-vite",
+  "name": "claude-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.1",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/material": "^6.0.1",
+    "@rdub/base": "0.4.0",
+    "@tanstack/react-query": "^5.53.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-query": "^3.39.3",
-    "react-router-dom": "^6.26.1",
     "use-local-storage-state": "^19.4.0"
   },
   "devDependencies": {
