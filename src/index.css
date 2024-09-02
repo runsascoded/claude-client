@@ -1,16 +1,26 @@
+@import "@rdub/base/color-scheme.css";
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme="light"] {
+  --button-bg: color-mix(in srgb, var(--bg) 87%, black);
+  --button-hover-bg: color-mix(in srgb, var(--bg) 80%, black);
+  --textarea-bg: #eee;
+}
+
+:root[data-theme="dark"] {
+  --button-bg: color-mix(in srgb, var(--bg) 20%, white);
+  --button-hover-bg: color-mix(in srgb, var(--bg) 15%, white);
+  --textarea-bg: #333;
 }
 
 a {
@@ -42,27 +52,15 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--button-bg);
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
   border-color: #646cff;
+  background-color: var(--button-hover-bg);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }

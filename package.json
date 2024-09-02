@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
+    "clean": "rm -rf dist node_modules/.vite",
+    "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -14,7 +15,9 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.0.1",
-    "@rdub/base": "0.4.0",
+    "@rdub/base": "0.5.0",
+    "@react-md/icon": "^5.1.6",
+    "@react-md/material-icons": "^5.1.6",
     "@tanstack/react-query": "^5.53.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

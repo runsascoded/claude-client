@@ -5,12 +5,53 @@
   text-align: center;
 }
 
+:root {
+  --time: 0.2s;
+  --icon-w: 3em;
+}
+
+body {
+  transition: background-color var(--time) ease, color var(--time) ease;
+}
+
+.icon {
+  width: var(--icon-w);
+  fill: var(--fg);
+  margin: 0 0.2em;
+}
+.github {
+  width: calc(var(--icon-w) * 0.89);
+  position: relative;
+  top: calc(var(--icon-w) * -0.08);
+}
+.color-scheme-icon {
+  transition: transform var(--time) ease;
+  transform: rotate(180deg);
+}
+@media {
+  [data-theme="dark"] {
+    .color-scheme-icon {
+      transform: rotate(0deg);
+    }
+  }
+}
+
 .data {
   text-align: left;
   max-width: 60em;
   margin: auto;
   overflow-x: auto;
   border: 1px solid grey;
+}
+
+form {
+  input, .prompt {
+    color: var(--fg);
+    background-color: var(--textarea-bg)
+  }
+  input {
+    border: 1px solid grey;
+  }
 }
 
 .prompt {
@@ -22,6 +63,10 @@
 }
 
 .message {
+  &.loading {
+    color: grey;
+  }
+
   .lines {
     margin-bottom: 1em;
   }
@@ -30,8 +75,13 @@
     margin: 0.2em;
   }
 
-  details {
+  .full-response {
     margin: 1em;
+    summary {
+      h4 {
+        display: inline;
+      }
+    }
   }
 }
 
@@ -69,7 +119,6 @@ label > span {
   max-width: 6em;
   text-align: right;
 }
-
 .temperature {
   max-width: 4em;
   text-align: right;

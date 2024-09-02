@@ -2,14 +2,19 @@ import { FormEvent, HTMLProps, KeyboardEvent, useCallback, useEffect, useState, 
 import './App.css'
 import Anthropic from "@anthropic-ai/sdk"
 import useLocalStorageState from "use-local-storage-state"
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 
-import { State } from "@rdub/base/state";
-import Tooltip from "./Tooltip.tsx";
-import GitHub from "./Github.tsx";
-import A from "@rdub/base/a";
+import { State } from "@rdub/base/state"
+import Tooltip from "./Tooltip.tsx"
+import GitHub from "@rdub/base/socials/GitHub"
+import A from "@rdub/base/a"
+import { useColorScheme } from "@rdub/base/color-scheme"
+import { InputProps } from "@rdub/base/dom";
+import { Brightness4SVGIcon } from "@react-md/material-icons";
 
-type Message = Anthropic.Message;
+const Repo = "runsascoded/claude-client"
+
+type Message = Anthropic.Message
 
 const TokenKey = "anthropic-token"
 const PromptKey = "anthropic-prompt"
@@ -17,7 +22,25 @@ const SystemPromptKey = "anthropic-system-prompt"
 const ModelKey = "anthropic-model"
 
 const DefaultPrompt = "What is a Claude?"
-const DefaultSystemPrompt = "Respond only with short poems."
+const DefaultSystemPrompt = "Respond only with a haiku"
+const ExampleResponse: Message = {
+  "id": "id",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-5-sonnet-20240620",
+  "content": [
+    {
+      "type": "text",
+      "text": "Artificial mind\nSilicon dreams, language's dance\nI am Claude, AI"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 19,
+    "output_tokens": 18
+  }
+}
 const DefaultModel = "claude-3-5-sonnet-20240620"
 const MaxTokensKey = "anthropic-max-tokens"
 const DefaultMaxTokens = 100
@@ -83,7 +106,10 @@ function Prompt(
   )
 }
 
-function Num({ label, val, setVal, ...props }: State<number, "val"> & { label: string } & HTMLProps<HTMLInputElement>) {
+function Num({ label, type = "int", val, setVal, ...props }: State<number, "val"> & {
+  label: string
+  type?: "int" | "float"
+} & Omit<InputProps, "type" | "value" | "onChange">) {
   return (
     <Div>
       <label>
@@ -92,16 +118,18 @@ function Num({ label, val, setVal, ...props }: State<number, "val"> & { label: s
           type="number"
           {...props}
           value={val}
-          onChange={e => setVal(parseInt(e.target.value))}
+          onChange={e => setVal(
+            (type === "int" ? parseInt : parseFloat)(e.target.value)
+          )}
         />
       </label>
     </Div>
   )
 }
 
-function Message(msg: Message) {
+function Message({ loading = false, ...msg }: Message & { loading?: boolean }) {
   const { content } = msg
-  return <div className={"message"}>
+  return <div className={`message ${loading ? "loading" : ""}`}>
     <H>Response:</H>
     {
       content.map((block, idx) =>
@@ -112,8 +140,8 @@ function Message(msg: Message) {
           <pre key={idx}>{JSON.stringify(block, null, 2)}</pre>
       )
     }
-    <details>
-      <summary>Raw</summary>
+    <details className={"full-response"}>
+      <summary><h4>Full response</h4></summary>
       <pre className={"data"}>{JSON.stringify(msg, null, 2)}</pre>
     </details>
   </div>
@@ -175,6 +203,9 @@ function App() {
       if (!anthropic || !prompt.saved || !system.saved) {
         return null
       }
+      if (nonce === 0) {
+        return ExampleResponse
+      }
       const message = await anthropic.messages.create({
         messages: [{ content: prompt.saved, role: "user" }],
         model: model.saved,
@@ -182,12 +213,13 @@ function App() {
         max_tokens: tokens.saved,
         temperature: temperature.saved,
       })
-      console.log("anthropic response", message)
+      console.log("anthropic response", message, `nonce ${nonce}`)
       return message
     },
+    placeholderData: keepPreviousData,
   })
-  const { data, refetch, isLoading, isError, error } = response
-  // console.log("response", response)
+  const { data, refetch, isFetching, isLoading, isError, error } = response
+  // console.log("response", response.status, response)
 
   const handleSubmit = useCallback(
     (e?: FormEvent<HTMLFormElement>) => {
@@ -203,17 +235,22 @@ function App() {
     [ refetch, prompt, system, tokens, model, temperature, nonce, setNonce, ]
   )
 
+  const { curScheme, toggleScheme } = useColorScheme()
+
   return (
     <div>
       <h2>Client-only interface to <A href={"https://claude.ai/"}>Claude</A></h2>
-      <form onSubmit={handleSubmit}>
+      <form className={"form"} onSubmit={handleSubmit}>
         <Prompt handleSubmit={handleSubmit} title={"Prompt"} k={PromptKey} input={prompt} />
         <Prompt handleSubmit={handleSubmit} title={"System prompt"} k={SystemPromptKey} input={system} rows={2} />
         <Submit disabled={!token || !prompt.saved || !system.saved} />
         <Div>
-          {isLoading && <p>Loading...</p>}
-          {isError && <p>Error: {(error as Error).message}</p>}
-          {data && <Message {...data} />}
+          {
+            isFetching || isLoading ? (data ? <Message {...data} loading={true} /> : "Loading...") :
+            isError ? `Error: ${(error as Error).message}` :
+            data ? <Message {...data} /> :
+            null
+          }
         </Div>
         <Token token={token} setToken={val => {
           setToken(val)
@@ -231,10 +268,15 @@ function App() {
           </label>
         </Div>
         <Num label={"Max Tokens"} className={"max-tokens"} val={tokens.val} setVal={tokens.setVal} />
-        <Num label={"Temperature"} className={"temperature"} val={temperature.val} setVal={temperature.setVal} />
+        <Num label={"Temperature"} className={"temperature"} val={temperature.val} setVal={temperature.setVal} type={"float"} min={-1} max={1} step={0.1} />
       </form>
       <Div>
-        <GitHub w={40} />
+        <Tooltip title={`View ${Repo} on GitHub`}>
+          <GitHub repo={Repo} className={"github icon"} />
+        </Tooltip>
+        <Tooltip title={`Switch to "${curScheme === "light" ? "dark" : "light"}" mode`}>
+          <Brightness4SVGIcon className={"color-scheme-icon icon"} onClick={toggleScheme} />
+        </Tooltip>
       </Div>
     </div>
   )
